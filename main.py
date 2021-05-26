@@ -29,9 +29,9 @@ env = JoypadSpace(
 # Apply Wrappers to environment
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env, keep_dim=False)
-env = ResizeObservation(env, shape=81)
 # env = TransformObservation(env, f=lambda x: x / 255.)
 env = FrameStack(env, num_stack=4)
+env = ResizeObservation(env, shape=81)
 
 env.reset()
 
