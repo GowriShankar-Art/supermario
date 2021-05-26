@@ -7,13 +7,13 @@ from pathlib import Path
 import gym
 import gym_super_mario_bros
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
-from gym.wrappers import FrameStack, GrayScaleObservation, ResizeObservation
+from gym.wrappers import FrameStack, GrayScaleObservation
 from nes_py.wrappers import JoypadSpace
 
 
 from metrics import MetricLogger
 from agent import Mario
-from wrappers import SkipFrame
+from wrappers import SkipFrame, ResizeObservation
 
 # Initialize Super Mario environment
 env = gym_super_mario_bros.make('SuperMarioBros-v2')
@@ -29,9 +29,9 @@ env = JoypadSpace(
 # Apply Wrappers to environment
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env, keep_dim=False)
+env = ResizeObservation(env, shape=81)
 # env = TransformObservation(env, f=lambda x: x / 255.)
 env = FrameStack(env, num_stack=4)
-env = ResizeObservation(env, shape=81)
 
 env.reset()
 
