@@ -1,6 +1,6 @@
 import gym
 from skimage import transform
-
+import numpy as np
 from gym.spaces import Box
 
 class ResizeObservation(gym.ObservationWrapper):
