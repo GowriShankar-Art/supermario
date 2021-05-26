@@ -1,6 +1,6 @@
 
-Refernce for this solution is
-# MadMario
+# Super Mario
+Refernce for this solution is MadMario
 PyTorch [official tutorial](https://pytorch.org/tutorials/intermediate/mario_rl_tutorial.html) to build an AI-powered Mario.
 
 Changed the CNN architecture with MaxPool layer.
