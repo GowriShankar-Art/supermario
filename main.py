@@ -6,30 +6,31 @@ from pathlib import Path
 
 import gym
 import gym_super_mario_bros
-from gym.wrappers import FrameStack, GrayScaleObservation, TransformObservation
+from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
+from gym.wrappers import FrameStack, GrayScaleObservation, ResizeObservation
 from nes_py.wrappers import JoypadSpace
+
 
 from metrics import MetricLogger
 from agent import Mario
-from wrappers import ResizeObservation, SkipFrame
+from wrappers import SkipFrame
 
 # Initialize Super Mario environment
-env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
+env = gym_super_mario_bros.make('SuperMarioBros-v2')
 
 # Limit the action-space to
 #   0. walk right
 #   1. jump right
-env = JoypadSpace(
+env = JoypadSpace(    
     env,
-    [['right'],
-    ['right', 'A']]
+    SIMPLE_MOVEMENT
 )
 
 # Apply Wrappers to environment
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env, keep_dim=False)
-env = ResizeObservation(env, shape=84)
-env = TransformObservation(env, f=lambda x: x / 255.)
+env = ResizeObservation(env, shape=81)
+# env = TransformObservation(env, f=lambda x: x / 255.)
 env = FrameStack(env, num_stack=4)
 
 env.reset()
@@ -38,11 +39,11 @@ save_dir = Path('checkpoints') / datetime.datetime.now().strftime('%Y-%m-%dT%H-%
 save_dir.mkdir(parents=True)
 
 checkpoint = None # Path('checkpoints/2020-10-21T18-25-27/mario.chkpt')
-mario = Mario(state_dim=(4, 84, 84), action_dim=env.action_space.n, save_dir=save_dir, checkpoint=checkpoint)
+mario = Mario(state_dim=(4, 81, 81), action_dim=env.action_space.n, save_dir=save_dir, checkpoint=checkpoint)
 
 logger = MetricLogger(save_dir)
 
-episodes = 1000
+episodes = 40000
 
 ### for Loop that train the model num_episodes times by playing the game
 for e in range(episodes):
@@ -77,7 +78,7 @@ for e in range(episodes):
         if done or info['flag_get']:
             break
 
-    logger.log_episode()
+    logger.log_episode(env.current_score)
 
     if e % 20 == 0:
         logger.record(

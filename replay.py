@@ -3,25 +3,23 @@ from pathlib import Path
 
 import gym
 import gym_super_mario_bros
-from gym.wrappers import FrameStack, GrayScaleObservation, TransformObservation
+from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
+from gym.wrappers import FrameStack, GrayScaleObservation, ResizeObservation
 from nes_py.wrappers import JoypadSpace
 
 from metrics import MetricLogger
 from agent import Mario
-from wrappers import ResizeObservation, SkipFrame
+from wrappers import SkipFrame
 
-env = gym_super_mario_bros.make('SuperMarioBros-1-1-v0')
+env = gym_super_mario_bros.make('SuperMarioBros-v2')
 
 env = JoypadSpace(
-    env,
-    [['right'],
-    ['right', 'A']]
+    env,SIMPLE_MOVEMENT
 )
 
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env, keep_dim=False)
-env = ResizeObservation(env, shape=84)
-env = TransformObservation(env, f=lambda x: x / 255.)
+env = ResizeObservation(env, shape=91)
 env = FrameStack(env, num_stack=4)
 
 env.reset()
@@ -29,7 +27,7 @@ env.reset()
 save_dir = Path('checkpoints') / datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
 save_dir.mkdir(parents=True)
 
-checkpoint = Path('checkpoints/2021-05-17T02-05-51/mario.chkpt')
+checkpoint = Path('checkpoints/2020-10-21T18-25-27/mario.chkpt')
 mario = Mario(state_dim=(4, 84, 84), action_dim=env.action_space.n, save_dir=save_dir, checkpoint=checkpoint)
 mario.exploration_rate = mario.exploration_rate_min
 
