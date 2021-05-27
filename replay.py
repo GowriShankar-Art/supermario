@@ -4,12 +4,12 @@ from pathlib import Path
 import gym
 import gym_super_mario_bros
 from gym_super_mario_bros.actions import SIMPLE_MOVEMENT
-from gym.wrappers import FrameStack, GrayScaleObservation, ResizeObservation
+from gym.wrappers import FrameStack, GrayScaleObservation
 from nes_py.wrappers import JoypadSpace
 
 from metrics import MetricLogger
 from agent import Mario
-from wrappers import SkipFrame
+from wrappers import SkipFrame, ResizeObservation
 
 env = gym_super_mario_bros.make('SuperMarioBros-v2')
 
@@ -19,7 +19,7 @@ env = JoypadSpace(
 
 env = SkipFrame(env, skip=4)
 env = GrayScaleObservation(env, keep_dim=False)
-env = ResizeObservation(env, shape=91)
+env = ResizeObservation(env, shape=81)
 env = FrameStack(env, num_stack=4)
 
 env.reset()
@@ -27,8 +27,8 @@ env.reset()
 save_dir = Path('checkpoints') / datetime.datetime.now().strftime('%Y-%m-%dT%H-%M-%S')
 save_dir.mkdir(parents=True)
 
-checkpoint = Path('checkpoints/2020-10-21T18-25-27/mario.chkpt')
-mario = Mario(state_dim=(4, 84, 84), action_dim=env.action_space.n, save_dir=save_dir, checkpoint=checkpoint)
+checkpoint = Path('checkpoint/mario_checkpoint.chkpt')
+mario = Mario(state_dim=(4, 81, 81), action_dim=env.action_space.n, save_dir=save_dir, checkpoint=checkpoint)
 mario.exploration_rate = mario.exploration_rate_min
 
 logger = MetricLogger(save_dir)
@@ -41,7 +41,7 @@ for e in range(episodes):
 
     while True:
 
-        env.render()
+        # env.render()
 
         action = mario.act(state)
 
@@ -54,7 +54,8 @@ for e in range(episodes):
         state = next_state
 
         if done or info['flag_get']:
-            break
+          print(f"Score -> {info['score']}")
+          break
 
     logger.log_episode(env.current_score)
 
