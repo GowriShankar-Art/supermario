@@ -56,7 +56,7 @@ for e in range(episodes):
         if done or info['flag_get']:
             break
 
-    logger.log_episode()
+    logger.log_episode(env.current_score)
 
     if e % 20 == 0:
         logger.record(
